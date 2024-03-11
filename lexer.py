@@ -1,6 +1,6 @@
 import re # used for analyzing regular expressions
 import os # going to be used to get if the files exists or not
-from tabulate import tabulate # going to be used to format the output
+
 class Lexer:
     def __init__(self, input_string):
         self.input_string = input_string
@@ -10,27 +10,36 @@ class Lexer:
     def tokenize(self):
         while self.current_position < len(self.input_string):
             char = self.input_string[self.current_position]
-            if (char.isdigit() or char.isdecimal()): # checks if an instance in the text is a digit
+            if char.isdigit() or char.isdecimal():
                 integer_lexeme = self.parse_integer()
                 self.tokens.append(("REAL", integer_lexeme))
             elif char.isalpha() or char == "": # checks if an instance in the text is a letter OR an empty string
                 identifier_lexeme = self.parse_identifier()
                 self.tokens.append(("IDENTIFIER", identifier_lexeme))
+            
+                separator_lexeme = self.parse_seperators() # Checks for . , ;
+            
             else:
-                operator_lexeme = self.parse_operators()  # Checking for anything that not a letter or a number
-                seperator_lexeme = self.parse_seperators()
-                if operator_lexeme:
-                    self.tokens.append(("OPERATOR", operator_lexeme))
-                elif seperator_lexeme:
-                    self.tokens.append(("SEPERATOR", seperator_lexeme))
+                keyword_lexeme = self.parse_keywords() # Checks for keywords like for, while, etc
+                if keyword_lexeme:
+                    
+                    self.tokens.append(("KEYWORD", keyword_lexeme))
                 else:
+                    operator_lexeme = self.parse_operators()  # Checking for anything that not a letter or a number
+                    if operator_lexeme:
+                        self.tokens.append(("OPERATOR", operator_lexeme))
+                    else:
+                        separator_lexeme = self.parse_seperators() # Checks for . , ;
+                        if separator_lexeme:
+                            self.tokens.append(("SEPARATOR", separator_lexeme))
+                        else:
                 # For simplicity, let's skip other characters
-                        self.current_position += 1
+                            self.current_position += 1
 
         return self.tokens
 
     def parse_integer(self): # Method will match a digit as an integer in the file
-        integer_regex = re.compile(r'\d+')
+        integer_regex = re.compile(r'\d+(\.\d+)?') # This will account for decimals as well now
         match = integer_regex.match(self.input_string[self.current_position:])
         if match:
             integer_lexeme = match.group()
@@ -72,23 +81,19 @@ class Lexer:
  
 
 def main():
-    if os.path.exists("output.txt"):
-        with open(f"output.txt", "r") as file:
+    if os.path.exists("input.txt"): # input.txt is going to be our RE to read
+        with open(f"input.txt", "r") as file:
             input_string = file.read()
-        
+
         lexer = Lexer(input_string)
         tokens = lexer.tokenize()
-        
-        
-        with open("output.txt", "a") as file:
-            for tokens, lexeme in file:
-                file.write(f"{tokens}, {lexeme}\n")
-            file.close()
-         
-    else:
-        print("The file doesn't exist")
-    
 
+        with open(f"output.txt", "w") as file: # Output file will be our list of tokens/lexemes
+            for token, lexeme in tokens:
+                file.write(f"{token}, {lexeme}\n")
+                print(f"{token}, {lexeme}\n") 
+    else:
+        print("The file does not exist")
 if __name__ == "__main__":
     main()
 
