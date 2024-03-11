@@ -1,6 +1,6 @@
 import re # used for analyzing regular expressions
-
-
+import os # going to be used to get if the files exists or not
+from tabulate import tabulate # going to be used to format the output
 class Lexer:
     def __init__(self, input_string):
         self.input_string = input_string
@@ -10,9 +10,9 @@ class Lexer:
     def tokenize(self):
         while self.current_position < len(self.input_string):
             char = self.input_string[self.current_position]
-            if char.isdigit(): # checks if an instance in the text is a digit
+            if (char.isdigit() or char.isdecimal()): # checks if an instance in the text is a digit
                 integer_lexeme = self.parse_integer()
-                self.tokens.append(("INTEGER", integer_lexeme))
+                self.tokens.append(("REAL", integer_lexeme))
             elif char.isalpha() or char == "": # checks if an instance in the text is a letter OR an empty string
                 identifier_lexeme = self.parse_identifier()
                 self.tokens.append(("IDENTIFIER", identifier_lexeme))
@@ -62,23 +62,33 @@ class Lexer:
             return seperator_lexeme
 
     def parse_keywords(self):
-        pass
+        keywords = ["while", "for", "if"]  # Add more keywords as needed
+        keyword_regex = re.compile(r"\b(" + "|".join(map(re.escape, keywords)) + r")\b")
+        match = keyword_regex.match(self.input_string[self.current_position:])
+        if match:
+            keyword_lexeme = match.group()
+            self.current_position += len(keyword_lexeme)
+            return keyword_lexeme
+ 
 
 def main():
-
-    with open(r"c:\Users\mrale\OneDrive\Desktop\output.txt") as file: 
-        input_string = file.read()
-
-    lexer = Lexer(input_string)
-    tokens = lexer.tokenize()
-
-    # Output tokens and lexemes to console
-    with open("output.txt", "w") as output_file:
-        for token, lexeme in tokens:
-            print(f"{token}: {lexeme}\n")
-
+    if os.path.exists("output.txt"):
+        with open(f"output.txt", "r") as file:
+            input_string = file.read()
+        
+        lexer = Lexer(input_string)
+        tokens = lexer.tokenize()
+        
+        
+        with open("output.txt", "a") as file:
+            for tokens, lexeme in file:
+                file.write(f"{tokens}, {lexeme}\n")
+            file.close()
+         
+    else:
+        print("The file doesn't exist")
+    
 
 if __name__ == "__main__":
     main()
 
-    
