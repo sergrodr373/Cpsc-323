@@ -62,7 +62,9 @@ class Lexer:
                 self.tokens.append(("KEYWORD", input_buffer.lower())) # pass keyword if input_buffer contains any of these
             else:
                 self.tokens.append(("IDENTIFIER", input_buffer)) # pass indentifier if anything else
-
+        elif state == "START":
+            state = "FINAL" # This is the FINAL state, marking the end of the input string
+            pass
         return self.tokens
 
 def main():
