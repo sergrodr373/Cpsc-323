@@ -1,5 +1,6 @@
 import re # used for analyzing regular expressions
 # import os # going to be used to get if the files exists or not
+from tabulate import tabulate
 
 class Lexer:
     def __init__(self, input_string):
@@ -9,71 +10,74 @@ class Lexer:
 
     def tokenize(self):
         state = "START" # Intiailize state as START, as it will represent the start state
-        buffer = ""
+        input_buffer = "" # acts as a temp storage, and used to check instances in the input.txt file
 
         while self.current_position < len(self.input_string):
             char = self.input_string[self.current_position]
 
-            if state == "START": # If we are on the start state
-                if char.isdigit() or char.isdecimal() : # Check is the next char is a digit
-                    state = "REAL"
-                    buffer += char
-                elif char.isalpha():
-                    state = "IDENTIFIER"
-                    buffer += char
-                elif char in "+-*/=<>":
-                    self.tokens.append(("OPERATOR", char))
-                elif char in ",;:()":
-                    self.tokens.append(("SEPARATOR", char))
-                elif char.isspace():
-                    pass  # Skip whitespaces
-                else:
-                    # Handle unknown characters
-                    print("Unknown character:", char)
-
-            elif state == "REAL": # Case when the state is number
+            if state == "START": # state state
                 if char.isdigit() or char == ".":
-                    buffer += char
+                    state = "REAL" # state turns into REAL state IF we get a digit
+                    input_buffer += char
+                elif char.isalpha():
+                    state = "IDENTIFIER" # state turns into REAL state IF we get a letter
+                    input_buffer += char
+                elif char in "+-*/=<>": # state still is a START
+                    self.tokens.append(("OPERATOR", char)) # pass operator when encountering chars above
+                elif char in ",;:()": # state still at START
+                    self.tokens.append(("SEPARATOR", char)) # pass separator when encountering chars above
+                elif char.isspace():
+                    pass  # Skip space chars
                 else:
-                    self.tokens.append(("REAL", buffer))
-                    buffer = ""
+                    print("UNKNOWN", char)
+
+            elif state == "REAL": # handles numbers (ints and decimals)
+                if char.isdigit() or char == ".":
+                    input_buffer += char
+                else:
+                    self.tokens.append(("REAL", input_buffer))
+                    input_buffer = ""
                     state = "START"
                     continue
 
             elif state == "IDENTIFIER":
-                if char.isalnum() or char == "_":
-                    buffer += char
+                if char.isalnum() or char == "_": # checks if char is letter or numeric
+                    input_buffer += char
                 else:
-                    self.tokens.append(("IDENTIFIER", buffer))
-                    buffer = ""
+                    if input_buffer.isalpha() and input_buffer.lower() in ["while", "for", "if"]: #checks if char is letter AND if its one of the keywords listed
+                        self.tokens.append(("KEYWORD", input_buffer.lower())) # if so pass KEYWORD
+                    else:
+                        self.tokens.append(("IDENTIFIER", input_buffer)) # anything else not mentioned above; must be a user defined variable
+                    input_buffer = ""
                     state = "START"
                     continue
 
-            self.current_position += 1 # Goes to the next char position
+            self.current_position += 1 # move to the next char in the input string
 
-        # Handles end of input string
-        if state == "REAL":
-            self.tokens.append(("REAL", buffer))
-        elif state == "IDENTIFIER":
-            self.tokens.append(("IDENTIFIER", buffer))
-
+        # Handle end of input string
+        if state == "REAL": # When we are in the REAL state
+            self.tokens.append(("REAL", input_buffer)) 
+        elif state == "IDENTIFIER":# When we are in the identifier state
+            if input_buffer.isalpha() and input_buffer.lower() in ["while", "for", "if"]:
+                self.tokens.append(("KEYWORD", input_buffer.lower())) # pass keyword if input_buffer contains any of these
+            else:
+                self.tokens.append(("IDENTIFIER", input_buffer)) # pass indentifier if anything else
 
         return self.tokens
 
-
 def main():
 
-    with open(f"input.txt", "r") as file:
+    with open(f"input.txt", "r") as file: # input.txt will have all the input string
         input_string = file.read()
 
     lexer = Lexer(input_string)
     tokens = lexer.tokenize()
-
+    table = tabulate(tokens, headers=['Token', 'Lexeme'], tablefmt='grid')
     with open(f"output.txt", "w") as file: # Output file will be our list of tokens/lexemes
         for token, lexeme in tokens:
-            file.write(f"{token}, {lexeme}\n")
+            #file.write(f"{token}, {lexeme}\n")
             print(f"{token}, {lexeme}\n") 
-
+        file.write(table)
 if __name__ == "__main__":
     main()
 
