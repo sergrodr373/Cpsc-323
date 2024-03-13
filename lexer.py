@@ -1,5 +1,5 @@
 import re # used for analyzing regular expressions
-import os # going to be used to get if the files exists or not
+# import os # going to be used to get if the files exists or not
 
 class Lexer:
     def __init__(self, input_string):
@@ -21,9 +21,9 @@ class Lexer:
                 elif char.isalpha():
                     state = "IDENTIFIER"
                     buffer += char
-                elif char in "+-*/=<>()":
+                elif char in "+-*/=<>":
                     self.tokens.append(("OPERATOR", char))
-                elif char in ",;:":
+                elif char in ",;:()":
                     self.tokens.append(("SEPARATOR", char))
                 elif char.isspace():
                     pass  # Skip whitespaces
@@ -62,19 +62,18 @@ class Lexer:
 
 
 def main():
-    if os.path.exists("input.txt"): # input.txt is going to be our RE to read
-        with open(f"input.txt", "r") as file:
-            input_string = file.read()
 
-        lexer = Lexer(input_string)
-        tokens = lexer.tokenize()
+    with open(f"input.txt", "r") as file:
+        input_string = file.read()
 
-        with open(f"output.txt", "w") as file: # Output file will be our list of tokens/lexemes
-            for token, lexeme in tokens:
-                file.write(f"{token}, {lexeme}\n")
-                print(f"{token}, {lexeme}\n") 
-    else:
-        print("The file does not exist")
+    lexer = Lexer(input_string)
+    tokens = lexer.tokenize()
+
+    with open(f"output.txt", "w") as file: # Output file will be our list of tokens/lexemes
+        for token, lexeme in tokens:
+            file.write(f"{token}, {lexeme}\n")
+            print(f"{token}, {lexeme}\n") 
+
 if __name__ == "__main__":
     main()
 
