@@ -58,7 +58,7 @@ class Lexer:
         if state == "REAL": # When we are in the REAL state
             self.tokens.append(("REAL", input_buffer)) 
         elif state == "IDENTIFIER":# When we are in the identifier state
-            if input_buffer.isalpha() and input_buffer.lower() in ["while", "for", "if"]:
+            if input_buffer.isalpha() and input_buffer.lower() in ["while", "for", "if", 'else', 'int', 'in', 'range', 'elif']:
                 self.tokens.append(("KEYWORD", input_buffer.lower())) # pass keyword if input_buffer contains any of these
             else:
                 self.tokens.append(("IDENTIFIER", input_buffer)) # pass indentifier if anything else
