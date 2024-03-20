@@ -1,4 +1,4 @@
-import re # used for analyzing regular expressions
+
 # import os # going to be used to get if the files exists or not
 from tabulate import tabulate
 
