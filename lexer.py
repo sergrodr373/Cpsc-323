@@ -32,7 +32,7 @@ class Lexer:
                     print("UNKNOWN", char)
 
             elif state == "REAL": # handles numbers (ints and decimals)
-                if char.isdigit() or char == ".":
+                if char.isdigit() or char == ".": # Checks if char is digit or contains "."
                     input_buffer += char
                 else:
                     self.tokens.append(("REAL", input_buffer))
@@ -41,7 +41,7 @@ class Lexer:
                     continue
 
             elif state == "IDENTIFIER":
-                if char.isalnum() or char == "_": # checks if char is letter or numeric
+                if char.isalnum() or char == "_": # checks if char is letter or numeric has "_"
                     input_buffer += char
                 else:
                     if input_buffer.isalpha() and input_buffer.lower() in ["while", "for", "if"]: #checks if char is letter AND if its one of the keywords listed
