@@ -44,7 +44,7 @@ class Lexer:
                 if char.isalnum() or char == "_": # checks if char is letter or numeric has "_"
                     input_buffer += char
                 else:
-                    if input_buffer.isalpha() and input_buffer.lower() in ["while", "for", "if"]: #checks if char is letter AND if its one of the keywords listed
+                    if input_buffer.isalpha() and input_buffer.lower() in ["while", "for", "if", 'else', 'int', 'in', 'range','elif']: #checks if char is letter AND if its one of the keywords listed
                         self.tokens.append(("KEYWORD", input_buffer.lower())) # if so pass KEYWORD
                     else:
                         self.tokens.append(("IDENTIFIER", input_buffer)) # anything else not mentioned above; must be a user defined variable
@@ -77,9 +77,10 @@ def main():
     table = tabulate(tokens, headers=['Token', 'Lexeme'], tablefmt='grid')
     with open(f"output.txt", "w") as file: # Output file will be our list of tokens/lexemes
         for token, lexeme in tokens:
-            #file.write(f"{token}, {lexeme}\n")
+            #file.write(f"{token}, {lexeme}\n") # outputs to file
             print(f"{token}, {lexeme}\n") 
         file.write(table)
+
 if __name__ == "__main__":
     main()
 
